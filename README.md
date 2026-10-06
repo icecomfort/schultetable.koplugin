@@ -2,7 +2,7 @@
 
 A customizable Schulte Table and visual search training plugin for [KOReader](https://github.com/koreader/koreader), designed with e-ink displays in mind.
 
-Schulte Table provides several randomized visual search exercises, configurable difficulty and timing options, and per-game statistics.
+schultetable.koplugin provides several randomized visual search exercises, configurable difficulty and timing options, and per-game statistics.
 
 ## Features
 
