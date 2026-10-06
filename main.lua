@@ -137,11 +137,11 @@ function Game:init()
     self.w, self.h = Screen:getWidth(), Screen:getHeight()
     self.header_h = math.floor(self.h * 0.09)
     self.margin = math.max(18, math.floor(self.w * 0.025))
-    self.exit_button = {
-        x = self.margin,
-        y = math.floor(self.header_h * 0.18),
-        w = math.max(90, math.floor(self.w * 0.16)),
-        h = math.floor(self.header_h * 0.64),
+    self.back_region = {
+        x = 0,
+        y = 0,
+        w = math.floor(self.w * 0.28),
+        h = self.header_h,
     }
     self.area = {x=self.margin, y=self.header_h+self.margin, w=self.w-2*self.margin, h=self.h-self.header_h-2*self.margin}
     self.dimen = Geom:new{x=0,y=0,w=self.w,h=self.h}
@@ -323,21 +323,21 @@ end
 function Game:paintTo(bb,x,y)
     bb:paintRect(0,0,self.w,self.h,Blitbuffer.COLOR_WHITE)
     local title = self.done and "Complete" or ("Find  "..self.target)
-    self:drawCentered(bb,title,self.w/2,self.header_h/2,math.max(24,math.floor(self.w/24)))
-    local line=math.max(2,Screen:scaleBySize(1))
+    local header_font = math.max(24,math.floor(self.w/24))
+    self:drawCentered(bb,title,self.w/2,self.header_h/2,header_font)
 
-    -- Persistent in-game exit control. Leaving an unfinished game does not
-    -- create a history entry or update best times.
-    local eb = self.exit_button
-    bb:paintBorder(eb.x, eb.y, eb.w, eb.h, line, Blitbuffer.COLOR_BLACK)
+    -- Native-style, borderless back control in the upper-left header.
+    -- The whole left portion of the header is tappable for e-ink usability.
+    local back_font = math.max(22, math.floor(self.w/30))
     self:drawCentered(
         bb,
-        "Exit",
-        eb.x + eb.w/2,
-        eb.y + eb.h/2,
-        math.max(18, math.floor(self.w/34))
+        "‹  Back",
+        self.back_region.x + self.back_region.w/2,
+        self.header_h/2,
+        back_font
     )
 
+    local line=math.max(2,Screen:scaleBySize(1))
     bb:paintRect(0,self.header_h-line,self.w,line,Blitbuffer.COLOR_BLACK)
     local font_size = math.max(22, math.floor(math.min(self.w,self.h)/math.sqrt(self.count)/5.0))
     for _,c in ipairs(self.cells) do
@@ -397,8 +397,8 @@ function Game:onTap(_,ges)
     if self.done then return true end
 
     local px, py = ges.pos.x, ges.pos.y
-    local eb = self.exit_button
-    if px >= eb.x and px <= eb.x + eb.w and py >= eb.y and py <= eb.y + eb.h then
+    local br = self.back_region
+    if px >= br.x and px <= br.x + br.w and py >= br.y and py <= br.y + br.h then
         local game = self
         UIManager:close(game)
         game.owner:showModeDialog()
