@@ -340,9 +340,29 @@ function Game:paintTo(bb,x,y)
     local line=math.max(2,Screen:scaleBySize(1))
     bb:paintRect(0,self.header_h-line,self.w,line,Blitbuffer.COLOR_BLACK)
     local font_size = math.max(22, math.floor(math.min(self.w,self.h)/math.sqrt(self.count)/5.0))
+
+    -- Classic Schulte: draw the grid once instead of drawing a border around
+    -- every cell. This keeps every internal separator a single line.
+    if self.mode=="classic" and #self.cells > 0 then
+        local side = math.floor(math.sqrt(self.count) + 0.5)
+        local first = self.cells[1]
+        local x0, y0 = math.floor(first.x), math.floor(first.y)
+        local grid_w = math.floor(first.w * side)
+        local grid_h = math.floor(first.h * side)
+
+        bb:paintBorder(x0, y0, grid_w, grid_h, line, Blitbuffer.COLOR_BLACK)
+
+        for i=1,side-1 do
+            local gx = math.floor(first.x + first.w * i)
+            local gy = math.floor(first.y + first.h * i)
+            bb:paintRect(gx, y0, line, grid_h, Blitbuffer.COLOR_BLACK)
+            bb:paintRect(x0, gy, grid_w, line, Blitbuffer.COLOR_BLACK)
+        end
+    end
+
     for _,c in ipairs(self.cells) do
         local found = c.num < self.target
-        if self.mode=="rect" or self.mode=="classic" then
+        if self.mode=="rect" then
             bb:paintBorder(math.floor(c.x),math.floor(c.y),math.floor(c.w),math.floor(c.h),line,Blitbuffer.COLOR_BLACK)
         elseif self.mode=="mosaic" then
             for i=1,#c.poly do
